@@ -24,7 +24,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <sys/time.h>
 #include <utility>
 
 typedef std::pair<int, int> int_pair;
@@ -45,6 +45,7 @@ typedef std::pair<int, int> int_pair;
 // NOTE: io is expensive, VERBOSITY 3 considerably slows run time
 #define VERBOSITY 3
 
+struct timeval start, end; // track start and end time of program run
 
 class TSP {
     private:
@@ -71,6 +72,10 @@ class TSP {
 
 };
 
+double timedifference_msec(struct timeval start, struct timeval end) {
+                // seconds             +  // milliseconds
+    return (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+}
 
 // get the path cost of a tsp path
 double TSP::cost(int path[]){
@@ -141,7 +146,9 @@ void TSP::anneal(){
             min_cost = new_cost;
 
             if(VERBOSITY >= 2){
-                printf("\rtime: %.3fs\tpath: %.3f\n", (double)(clock() - start_time)/CLOCKS_PER_SEC, min_cost);
+                gettimeofday(&end, 0);
+                double elapsed = timedifference_msec(start, end);
+                printf("\rtime: %.3fs\tpath: %.3f\n", elapsed, min_cost);
             }
         }
 
@@ -173,7 +180,10 @@ void TSP::anneal(){
         // for(int i = 0; i < n+1; ++i){
         //     printf("%d ", min_path[i]);
         // }
-        printf("\ntime: %.3fs\n", (double)(clock() - start_time)/CLOCKS_PER_SEC);
+
+        gettimeofday(&end, 0);
+        double elapsed = timedifference_msec(start, end);
+        printf("\ntime: %.3fs\n", elapsed);
     } else {
         printf("%.3f\n", min_cost);
     }
@@ -193,7 +203,7 @@ TSP::TSP(){
     // set static seed
     srand(1001);
 
-    start_time = clock();
+    gettimeofday(&start, 0);
 }
 
 // destructor
