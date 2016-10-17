@@ -42,8 +42,9 @@ typedef std::pair<int, int> int_pair;
 // 1: print inital path cost, min path cost and total time taken
 // 2: print all of 1, print each new min path cost and when it is found
 // 3: print all of 2, print the current temperature
+// 4: print all of 3, print the path through the graph
 // NOTE: io is expensive, VERBOSITY 3 considerably slows run time
-#define VERBOSITY 3
+#define VERBOSITY 4
 
 struct timeval start, end; // track start and end time of program run
 
@@ -177,9 +178,11 @@ void TSP::anneal(){
         printf("\n\nshortest path: %.3f\n", min_cost);
         printf("initial  path: %.3f\n", init_cost);
 
-        // for(int i = 0; i < n+1; ++i){
-        //     printf("%d ", min_path[i]);
-        // }
+        if(VERBOSITY > 3){
+            for(int i = 0; i < n+1; ++i){
+                printf("%d ", min_path[i]);
+            }
+        }
 
         gettimeofday(&end, 0);
         double elapsed = timedifference_msec(start, end);
@@ -192,9 +195,20 @@ void TSP::anneal(){
 
 // swap two cities (a and b) on a path
 void TSP::swap(int a, int b, int path[]){
-    int temp = path[a];
-    path[a] = path[b];
-    path[b] = temp;
+
+    int top    = a > b ? a : b;
+    int bottom = a < b ? a : b;
+
+    int x, y;
+
+    for(int i = 0; i < (top - bottom + 1)/2; i++){
+        x = bottom + i;
+        y = top - i;
+
+        int temp = path[x];
+        path[x]  = path[y];
+        path[y]  = temp;
+    }
 }
 
 // constructor
